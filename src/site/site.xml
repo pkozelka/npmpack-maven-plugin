@@ -43,10 +43,9 @@
         <menu name="Documentation">
             <item name="Overview" href="index.html"/>
             <item name="Goals" href="plugin-info.html"/>
+            <item name="Features" href="features.html"/>
             <item name="Usage" href="usage.html">
-                <item name="Ignore your own artifacts" href="own-artifacts.html"/>
-                <item name="Content definition file structure" href="content-def.html"/>
-                <item name="Additional license info" href="additional-lic-info.html"/>
+                <item name="Publish npm artifact" href="publish-npm.html"/>
             </item>
         </menu>
         <menu name="Links">
