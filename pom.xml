@@ -154,6 +154,18 @@
             <url>https://github.com/romario333</url>
         </developer>
     </developers>
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>LGPL</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <mailingLists>
         <mailingList>
             <archive>http://groups.google.com/group/buildbox</archive>
