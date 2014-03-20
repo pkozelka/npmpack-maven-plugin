@@ -21,20 +21,14 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Extracts archive of "node_modules" from the specified dependency.
- * <p>MD5 hash of the package.json file is used to determine if its contents should be updated from "npm install"</p>
+ * Prepares the <code>node_modules</code> directory.
+ * <p>If it exists, uses MD5 hash of the package.json file is used to determine if its contents should be updated from "npm install".</p>
+ * <p>If it does not exist, unpacks it from an archive within maven repository. If that does not exist, uses "npm install" to produce it.</p>
  * @author Petr Kozelka
  */
-@Mojo(name = "unpack", defaultPhase = LifecyclePhase.COMPILE, requiresProject = true, threadSafe = true)
-class UnpackMojo extends AbstractNpmpackMojo {
+@Mojo(name = "node_modules", defaultPhase = LifecyclePhase.COMPILE, requiresProject = true, threadSafe = true)
+class NodeModulesMojo extends AbstractNpmpackMojo {
 
-    public static final DefaultConsumer STDOUT = new DefaultConsumer();
-    private static final StreamConsumer STDERR = new StreamConsumer() {
-        @Override
-        public void consumeLine(String line) {
-            System.err.println("| " + line);
-        }
-    };
     /**
      * The groupId under which to cache the npm artifacts in the repository.
      * <p>Recommended use: define once per whole project (or company), inside parent pom's pluginManagement.</p>
@@ -48,20 +42,6 @@ class UnpackMojo extends AbstractNpmpackMojo {
      */
     @Parameter( defaultValue = "node_modules", required = true )
     String binaryArtifactId;
-
-    /**
-     * Pointer to package.json file.
-     * <p>Recommended use: do not change</p>
-     */
-    @Parameter( defaultValue = "package.json", required = true )
-    File packageJson;
-
-    /**
-     * Pointer to node_modules directory.
-     * <p>Recommended use: do not change if you wish to use npm-based tools from commandline as well. Otherwise it might be practical to change this to "${project.build.directory}/node_modules".</p>
-     */
-    @Parameter( defaultValue = "node_modules", required = true )
-    File node_modules;
 
     @Parameter( defaultValue = "${project.build.directory}", required = true)
     File workdir;
@@ -93,7 +73,7 @@ class UnpackMojo extends AbstractNpmpackMojo {
                 getLog().info(String.format("Trying to resolve artifact %s", artifact));
 
                 getLog().info(String.format("Deleting %s", node_modules));
-                FileUtils.deleteDirectory(node_modules);
+                FileUtils.deleteDirectory(node_modules); //TODO: just move to target, so that user has a way back when no net is reachable
                 try {
                     resolver.resolveAlways(artifact, remoteRepositories, localRepository);
                     unpack(artifact.getFile());
@@ -132,31 +112,16 @@ class UnpackMojo extends AbstractNpmpackMojo {
         unArchiver.extract();
 
         // npm rebuild
-        executeCommandline(new Commandline("npm rebuild"));
-    }
-
-    private void executeCommandline(Commandline commandline) throws CommandLineException, InterruptedException, MojoExecutionException {
-        //TODO: do something with the output
-        //TODO: have method "npm()" for invoking npm only
-        getLog().info(String.format("Executing %s", commandline));
-        final int exitCode = CommandLineUtils.executeCommandLine(commandline, STDOUT, STDERR);
-        if (exitCode != 0) {
-            throw new MojoExecutionException(commandline + " has failed");
-        }
+        npm("rebuild");
     }
 
     private void pack(Artifact artifact) throws MojoExecutionException, IOException, CommandLineException, InterruptedException {
-        /* Outline:
-        - node_modules is deleted now
-        - call npm install
-        - compress node_modules into local repo
-        - generate pom in local repo
-        - if requested and configured, also publish it up to nexus
-         */
-        executeCommandline(new Commandline("npm install"));
+        npm("install");
 
         final File archiveFile = new File(localRepository.getLayout().pathOf(artifact));
         final File archiveFileTmp = new File(workdir, archiveFile.getName());
+
+        FileUtils.copyFile(packageJson, new File(node_modules, packageJson.getName()));
 
         getLog().info(String.format("Creating binary artifact %s in %s", artifact, archiveFile));
         final TarArchiver archiver = new TarArchiver();
