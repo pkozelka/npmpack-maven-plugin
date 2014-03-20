@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
  * @author Petr Kozelka
  */
 @Mojo(name = "unpack", defaultPhase = LifecyclePhase.COMPILE, requiresProject = true, threadSafe = true)
-public class UnpackMojo extends AbstractNpmpackMojo {
+class UnpackMojo extends AbstractNpmpackMojo {
 
     /**
      * The groupId under which to cache the npm artifacts in the repository.
@@ -62,7 +62,7 @@ public class UnpackMojo extends AbstractNpmpackMojo {
         - compute checksum of "normalized" package.json (ignore whitespace, eols etc)
         - if it equals to current node_modules/package.json.md5, DONE
         - look it up in repo
-            - TODO: if NOT FOUND, create one
+            - if NOT FOUND, create one
         - unpack it into node_modules
         - invoke "npm rebuild" to adjust symlinks, executable flags etc
         */
@@ -73,7 +73,7 @@ public class UnpackMojo extends AbstractNpmpackMojo {
             final File oldHashFile = new File(node_modules, "package.json.hash");
             final String oldHash = oldHashFile.exists() ? FileUtils.readFileToString(oldHashFile) : "__NONE__";
             if (oldHash.equals(packageJsonHash)) {
-                getLog().info("The normalized hash did not change, assuming that content needs no changes");
+                getLog().info(String.format("Normalized hash did not change, assuming that content of %s needs no updates", node_modules));
             } else {
                 getLog().info(String.format("Differs from previous hash: %s, updating content of %s", oldHash, node_modules));
                 getLog().info(String.format("Deleting %s", node_modules));
@@ -85,29 +85,10 @@ public class UnpackMojo extends AbstractNpmpackMojo {
                 getLog().info(String.format("Trying to resolve artifact %s", artifact));
 
                 try {
-                    resolver.resolveAlways(artifact, remoteRepositories, localRepository); //TODO: on failure, generate one!
+                    resolver.resolveAlways(artifact, remoteRepositories, localRepository);
+                    unpack(artifact.getFile());
                 } catch (ArtifactNotFoundException e) {
                     pack();
-                }
-
-                // unpack
-                getLog().info(String.format("Unpacking %s to %s", artifact.getFile(), node_modules));
-                node_modules.mkdirs();
-                final TarGZipUnArchiver unArchiver = new TarGZipUnArchiver();
-                final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
-                unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
-                unArchiver.setSourceFile(artifact.getFile());
-                unArchiver.setDestDirectory(node_modules);
-                unArchiver.setUseJvmChmod(true);
-                unArchiver.extract();
-
-                // npm rebuild
-                final Commandline npmRebuild = new Commandline("npm rebuild");
-                getLog().info(String.format("Executing %s", npmRebuild));
-                final Process process = npmRebuild.execute();
-                final int exitCode = process.waitFor();
-                if (exitCode != 0) {
-                    throw new MojoExecutionException(npmRebuild + " has failed");
                 }
 
                 // save checksum
@@ -125,6 +106,28 @@ public class UnpackMojo extends AbstractNpmpackMojo {
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (InterruptedException e) {
             throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    private void unpack(File binArtifactFile) throws CommandLineException, InterruptedException, MojoExecutionException {
+        // unpack
+        getLog().info(String.format("Unpacking %s to %s", binArtifactFile, node_modules));
+        node_modules.mkdirs();
+        final TarGZipUnArchiver unArchiver = new TarGZipUnArchiver();
+        final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
+        unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
+        unArchiver.setSourceFile(binArtifactFile);
+        unArchiver.setDestDirectory(node_modules);
+        unArchiver.setUseJvmChmod(true);
+        unArchiver.extract();
+
+        // npm rebuild
+        final Commandline npmRebuild = new Commandline("npm rebuild");
+        getLog().info(String.format("Executing %s", npmRebuild));
+        final Process process = npmRebuild.execute();
+        final int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new MojoExecutionException(npmRebuild + " has failed");
         }
     }
 
