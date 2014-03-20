@@ -18,9 +18,9 @@
                 <name>Buildbox</name>
                 <alt>Buildbox</alt>
                 <src>buildbox-logo-wide.svg</src>
-                <href>http://github.com/buildbox</href>
+                <href>http://buildbox.github.io</href>
             </topBarIcon>
-            <sideBarEnabled>true</sideBarEnabled>
+            <sideBarEnabled>false</sideBarEnabled>
             <gitHub>
                 <projectId>buildbox/npmpack-maven-plugin</projectId>
                 <ribbonOrientation>right</ribbonOrientation>
@@ -36,9 +36,8 @@
 
     <body>
         <breadcrumbs>
-            <item name="Buildbox" href="http://github.com/buildbox"/>
-            <item name="NPMPACK Maven Plugin"
-                  href="http://buildbox.github.com/npmpack-maven-plugin/index.html"/>
+            <item name="Buildbox" href="http://buildbox.github.io"/>
+            <item name="npmpack-maven-plugin" href="index.html"/>
         </breadcrumbs>
 
         <menu name="Documentation">
