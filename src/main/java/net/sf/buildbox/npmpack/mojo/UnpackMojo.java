@@ -3,18 +3,14 @@ package net.sf.buildbox.npmpack.mojo;
 import net.sf.buildbox.npmpack.Utils;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
-import org.codehaus.plexus.archiver.tar.TarUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -25,28 +21,40 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Extracts archive of "node_modules" from the specified dependency
+ * Extracts archive of "node_modules" from the specified dependency.
+ * <p>MD5 hash of the package.json file is used to determine if its contents should be updated from "npm install"</p>
+ * @author Petr Kozelka
  */
-@Mojo(name = "unpack")
+@Mojo(name = "unpack", defaultPhase = LifecyclePhase.COMPILE, requiresProject = true, threadSafe = true)
 public class UnpackMojo extends AbstractNpmpackMojo {
 
+    /**
+     * The groupId under which to cache the npm artifacts in the repository.
+     * <p>Recommended use: define once per whole project (or company), inside parent pom's pluginManagement.</p>
+     */
     @Parameter( defaultValue = "${project.groupId}.npmpack", readonly = true, required = true )
-    private String binaryGroupId;
+    String binaryGroupId;
 
+    /**
+     * The artifactId to use for caching in maven repositories.
+     * <p>Recommended use: do not change</p>
+     */
     @Parameter( defaultValue = "node_modules", readonly = true, required = true )
-    private String binaryArtifactId;
+    String binaryArtifactId;
 
     /**
      * Pointer to package.json file.
+     * <p>Recommended use: do not change</p>
      */
     @Parameter( defaultValue = "package.json", readonly = true, required = true )
-    private File packageJson;
+    File packageJson;
 
     /**
      * Pointer to node_modules directory.
+     * <p>Recommended use: do not change if you wish to use npm-based tools from commandline as well. Otherwise it might be practical to change this to "${project.build.directory}/node_modules".</p>
      */
     @Parameter( defaultValue = "node_modules", readonly = true, required = true )
-    private File node_modules;
+    File node_modules;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -60,49 +68,56 @@ public class UnpackMojo extends AbstractNpmpackMojo {
         */
 
         try {
-            final String packageJsonHash = Utils.fileHash(packageJson);
-            getLog().info("NEW HASH: " + packageJsonHash);
+            final String packageJsonHash = Utils.md5sumNormalized(packageJson);
+            getLog().info(String.format("MD5 hash of normalized %s: %s", packageJson, packageJsonHash));
             final File oldHashFile = new File(node_modules, "package.json.hash");
             final String oldHash = oldHashFile.exists() ? FileUtils.readFileToString(oldHashFile) : "__NONE__";
-            getLog().info("OLD HASH: " + oldHash);
-            if (! oldHash.equals(packageJsonHash)) {
+            if (oldHash.equals(packageJsonHash)) {
+                getLog().info("The normalized hash did not change, assuming that content needs no changes");
+            } else {
+                getLog().info(String.format("Differs from previous hash: %s, updating content of %s", oldHash, node_modules));
+                getLog().info(String.format("Deleting %s", node_modules));
                 FileUtils.deleteDirectory(node_modules);
-                // repo lookup
+
+                // repository lookup
                 getLog().info(String.format("Artifact %s:%s:%s", binaryGroupId, binaryArtifactId, packageJsonHash));
                 final Artifact artifact = factory.createBuildArtifact(binaryGroupId, binaryArtifactId, packageJsonHash, "tgz");
                 getLog().info(String.format("Trying to resolve artifact %s", artifact));
-                resolver.resolve(artifact, remoteRepositories, localRepository); //TODO: on failure, generate one!
+
+                try {
+                    resolver.resolveAlways(artifact, remoteRepositories, localRepository); //TODO: on failure, generate one!
+                } catch (ArtifactNotFoundException e) {
+                    pack();
+                }
 
                 // unpack
                 getLog().info(String.format("Unpacking %s to %s", artifact.getFile(), node_modules));
                 node_modules.mkdirs();
                 final TarGZipUnArchiver unArchiver = new TarGZipUnArchiver();
-
-                unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "unpack"));
+                final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
+                unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
                 unArchiver.setSourceFile(artifact.getFile());
                 unArchiver.setDestDirectory(node_modules);
                 unArchiver.setUseJvmChmod(true);
                 unArchiver.extract();
 
                 // npm rebuild
-                final Commandline npmr = new Commandline("npm rebuild");
-                getLog().info(String.format("Executing %s", npmr));
-                final Process process = npmr.execute();
+                final Commandline npmRebuild = new Commandline("npm rebuild");
+                getLog().info(String.format("Executing %s", npmRebuild));
+                final Process process = npmRebuild.execute();
                 final int exitCode = process.waitFor();
                 if (exitCode != 0) {
-                    throw new MojoExecutionException("npm rebuild has failed");
+                    throw new MojoExecutionException(npmRebuild + " has failed");
                 }
+
                 // save checksum
                 getLog().info(String.format("Saving hash marker into %s", oldHashFile));
                 FileUtils.writeStringToFile(oldHashFile, packageJsonHash);
-                getLog().info("DONE");
+                getLog().info(String.format("Directory %s has been successfully recreated", node_modules));
             }
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        } catch (ArtifactNotFoundException e) {
-            getLog().info("TODO: CREATE THE ARTIFACT NOW, by calling npm install!!!");
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (ArtifactResolutionException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -111,45 +126,10 @@ public class UnpackMojo extends AbstractNpmpackMojo {
         } catch (InterruptedException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
-
     }
 
-/* here is the ant fragment that we are reimplementing:
-<fixcrlf file="package.json" destdir="target" eol="lf"/>
-<checksum property="package.json.checksum" file="target/package.json" format="MD5SUM"/>
-<echo>Depending on: ${npm-pack.hash}</echo>
-<echo>Current hash: ${package.json.checksum}</echo>
-<fail message="package.json has changed, please update the dependency (property npm-pack.hash in pom.xml file)">
-    <condition>
-        <not>
-            <equals arg1="${npm-pack.hash}" arg2="${package.json.checksum}"/>
-        </not>
-    </condition>
-</fail>
-<delete includeemptydirs="true">
-    <fileset dir="${basedir}" includes="node_modules/**" defaultexcludes="false"/>
-</delete>
-<mkdir dir="node_modules"/>
-<!-- untar -->
-<c:if>
-    <os family="windows"/>
-    <c:then>
-        <untar src="${com.example.npmpack:node_modules:tgz}" dest="node_modules" compression="gzip"/>
-    </c:then>
-    <c:else>
-        <!-- on *nixes, we use system tar in order to restore symlinks and executable flags -->
-        <exec executable="tar" dir="node_modules" taskname="tar_zxf" failonerror="true">
-            <arg value="zxf"/>
-            <arg value="${com.example.npmpack:node_modules:tgz}"/>
-            <arg value="-C"/>
-            <arg value="${basedir}/node_modules"/>
-        </exec>
-    </c:else>
-</c:if>
-
-<exec executable="${npm.launcher}" failonerror="true" taskname="npm-rebuild" vmlauncher="${exec.vmlauncher}" dir="${basedir}">
-    <arg value="rebuild"/>
-    <redirector output="${project.build.directory}/npm-rebuild.log"/>
-</exec>
-*/
+    private void pack() throws MojoExecutionException {
+        getLog().info("TODO: CREATE THE ARTIFACT NOW, by calling npm install!!!");
+        throw new MojoExecutionException("NOT IMPLEMENTED YET");
+    }
 }
