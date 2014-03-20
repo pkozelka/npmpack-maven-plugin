@@ -12,6 +12,7 @@
         <version>9</version>
     </parent>
     <url>http://buildbox.github.com/${project.artifactId}</url>
+    <description>Simplify embedding of NPM build inside Maven build</description>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
