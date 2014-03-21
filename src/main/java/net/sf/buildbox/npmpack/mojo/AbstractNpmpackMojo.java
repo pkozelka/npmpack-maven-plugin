@@ -138,10 +138,10 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     }
 
     protected void npm(String taskName, String... arguments) throws InterruptedException, CommandLineException {
-        final Commandline cl = new Commandline();
-        cl.setExecutable(selectAlternative(npmExecutables));
-        cl.addArguments(arguments);
-        executeCommandline(taskName, cl);
+        final Commandline commandline = new Commandline();
+        commandline.setExecutable(selectAlternative(npmExecutables));
+        commandline.addArguments(arguments);
+        executeCommandline(taskName, commandline);
     }
 
 }
