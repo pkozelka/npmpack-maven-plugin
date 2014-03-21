@@ -115,8 +115,13 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                 final Artifact artifact = factory.createBuildArtifact(binaryGroupId, binaryArtifactId, packageJsonHash, archiveType);
                 getLog().info(String.format("Trying to resolve artifact %s", artifact));
 
-                getLog().info(String.format("Deleting %s", node_modules));
-                FileUtils.deleteDirectory(node_modules); //TODO: just move to target, so that user has a way back when no net is reachable
+                if (node_modules.isDirectory()) {
+                    final File backup = new File(workdir, "backup/" + node_modules.getName());
+                    FileUtils.deleteQuietly(backup);
+                    getLog().info(String.format("Thrashing %s to %s", node_modules, backup));
+                    backup.getParentFile().mkdirs();
+                    FileUtils.moveDirectory(node_modules, backup);
+                }
                 try {
                     resolver.resolveAlways(artifact, remoteRepositories, localRepository);
                     unpack(artifact.getFile());
