@@ -9,6 +9,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -72,6 +73,9 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     @Parameter( defaultValue = "node_modules", required = true )
     File node_modules;
 
+    @Parameter(defaultValue = "npm,npm.cmd", required = true, property = "npm.executable")
+    String npmExecutables;
+
     private final StreamConsumer STDOUT = new StreamConsumer() {
         @Override
         public void consumeLine(String line) {
@@ -95,8 +99,19 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     }
 
     protected void npm(String ... arguments) throws InterruptedException, CommandLineException {
+        final String[] executables = npmExecutables.split(",");
+        final String npmExecutable;
+        if (executables.length == 1) {
+            npmExecutable = executables[0];
+            getLog().warn("Only one executable specified. You may have problems or other platforms: " + npmExecutables);
+        } else if (executables.length == 0) {
+            throw new CommandLineException("at least one executable must be specified");
+        } else {
+            npmExecutable = executables[Os.isFamily(Os.FAMILY_WINDOWS) ? 1:0];
+        }
+
         final Commandline cl = new Commandline();
-        cl.setExecutable("npm");
+        cl.setExecutable(npmExecutable);
         cl.addArguments(arguments);
         executeCommandline(cl);
     }
