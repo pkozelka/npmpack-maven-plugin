@@ -10,8 +10,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.archiver.AbstractUnArchiver;
+import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
+import org.codehaus.plexus.archiver.zip.ZipArchiver;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.cli.*;
@@ -43,11 +48,50 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     @Parameter( defaultValue = "node_modules", required = true )
     String binaryArtifactId;
 
+    /**
+     * Type of the resulting archive. Can be one of "zip", "tgz", "tar.gz".
+     */
+    @Parameter(defaultValue = "zip", required = true)
+    String archiveType;
+
+    /**
+     * Pointer to the build's working directory.
+     */
     @Parameter( defaultValue = "${project.build.directory}", required = true)
     File workdir;
 
+    private boolean isZip() {
+        return archiveType.equals("zip");
+    }
+
+    private Archiver createArchiver() {
+        if (isZip()) {
+            return new ZipArchiver();
+        }
+        final TarArchiver archiver = new TarArchiver();
+        final TarArchiver.TarCompressionMethod tarCompressionMethod = new TarArchiver.TarCompressionMethod();
+        tarCompressionMethod.setValue("gzip");
+        archiver.setCompression(tarCompressionMethod);
+        return archiver;
+    }
+
+    private AbstractUnArchiver createUnArchiver() {
+        return (isZip()) ? new ZipUnArchiver() : new TarGZipUnArchiver();
+    }
+
+    private void validateParameters() throws MojoExecutionException {
+        if (!"|zip|tgz|tar.gz|".contains("|"+archiveType+"|")) {
+            throw new MojoExecutionException("Invalid archive type: " + archiveType);
+        }
+        if (!packageJson.exists()) {
+            throw new MojoExecutionException("File not found: " + packageJson);
+        }
+    }
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        validateParameters();
+
         /* outline:
         - compute checksum of "normalized" package.json (ignore whitespace, eols etc)
         - if it equals to current node_modules/package.json.md5, DONE
@@ -68,7 +112,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
 
                 // repository lookup
                 getLog().info(String.format("Artifact %s:%s:%s", binaryGroupId, binaryArtifactId, packageJsonHash));
-                final Artifact artifact = factory.createBuildArtifact(binaryGroupId, binaryArtifactId, packageJsonHash, "tgz");
+                final Artifact artifact = factory.createBuildArtifact(binaryGroupId, binaryArtifactId, packageJsonHash, archiveType);
                 getLog().info(String.format("Trying to resolve artifact %s", artifact));
 
                 getLog().info(String.format("Deleting %s", node_modules));
@@ -102,7 +146,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         // unpack
         getLog().info(String.format("Unpacking %s to %s", binArtifactFile, node_modules));
         node_modules.mkdirs();
-        final TarGZipUnArchiver unArchiver = new TarGZipUnArchiver();
+        final AbstractUnArchiver unArchiver = createUnArchiver();
         final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
         unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
         unArchiver.setSourceFile(binArtifactFile);
@@ -117,16 +161,12 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     private void pack(Artifact artifact) throws MojoExecutionException, IOException, CommandLineException, InterruptedException {
         npm("npm_install", "install");
 
-        final File archiveFile = new File(localRepository.getLayout().pathOf(artifact));
+        final File archiveFile = new File(localRepository.getBasedir(), localRepository.getLayout().pathOf(artifact));
         final File archiveFileTmp = new File(workdir, archiveFile.getName());
 
         FileUtils.copyFile(packageJson, new File(node_modules, packageJson.getName()));
 
-        getLog().info(String.format("Creating binary artifact %s in %s", artifact, archiveFile));
-        final TarArchiver archiver = new TarArchiver();
-        final TarArchiver.TarCompressionMethod tarCompressionMethod = new TarArchiver.TarCompressionMethod();
-        tarCompressionMethod.setValue("gzip");
-        archiver.setCompression(tarCompressionMethod);
+        final Archiver archiver = createArchiver();
         archiver.setDestFile(archiveFileTmp);
         //NOTE: .bin dirs will be recreated by npm rebuild; that makes the archive platform independent
         archiver.addDirectory(node_modules, null, new String[]{"**/.bin/**"});
@@ -141,13 +181,13 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                 "  <groupId>%s</groupId>\n" +
                 "  <artifactId>%s</artifactId>\n" +
                 "  <version>%s</version>\n" +
-                "  <packaging>tgz</packaging>\n" +
+                "  <packaging>pom</packaging>\n" +
                 "  <description>generated by npmpack-maven-plugin</description>\n" +
                 "</project>\n",
                 artifact.getGroupId(),
                 artifact.getArtifactId(),
                 artifact.getVersion()));
-        getLog().info(String.format("Moving artifact to local repository: %s", archiveFile));
+        getLog().info(String.format("Moving artifact to local repository: %s (%d bytes)", archiveFile, archiveFile.length()));
         FileUtils.moveFile(archiveFileTmp, archiveFile);
         // TODO: publish into nexus if desired
     }
