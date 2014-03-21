@@ -64,14 +64,27 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
 
     final class MyStreamConsumer implements StreamConsumer {
         private final String prefix;
+        private final boolean isErr;
+        private int lineCount = 0;
 
-        MyStreamConsumer(String prefix) {
+        MyStreamConsumer(String prefix, boolean isErr) {
             this.prefix = prefix;
+            this.isErr = isErr;
         }
 
         @Override
         public void consumeLine(String line) {
-            getLog().info(prefix + line);
+            final String msg = prefix + line;
+            if (isErr) {
+                getLog().warn(msg);
+            } else {
+                getLog().info(msg);
+            }
+            lineCount++;
+        }
+
+        public int getLineCount() {
+            return lineCount;
         }
     }
 
@@ -98,18 +111,27 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     }
 
     /**
-     * Executes given commandline. The output of execution if prefixed with taskName as in ant; plus first char is
-     * space for stdout and exclamation mark for stderr
+     * Executes given commandline. The output of execution if prefixed with taskName;
+     * square braces surround stdout lines, exclamation marks surround stderr lines.
+     * Little stats is printed at the end.
      * @param taskName  logical task name to be used in prefix
      * @param commandline -
      * @throws CommandLineException
      * @throws InterruptedException
      */
     protected void executeCommandline(String taskName, Commandline commandline) throws CommandLineException, InterruptedException {
-        getLog().info(String.format("Executing %s", commandline));
-        final StreamConsumer stdout = new MyStreamConsumer(" [" + taskName + "] ");
-        final StreamConsumer stderr = new MyStreamConsumer("![" + taskName + "] ");
+        getLog().info(String.format(" :::%s::: executing %s", taskName, CommandLineUtils.toString(commandline.getShellCommandline())));
+        final MyStreamConsumer stdout = new MyStreamConsumer("   [" + taskName + "] ", false);
+        final MyStreamConsumer stderr = new MyStreamConsumer("!" + taskName + "! ", true);
+        final long startTime = System.currentTimeMillis();
         final int exitCode = CommandLineUtils.executeCommandLine(commandline, stdout, stderr);
+        getLog().info(String.format(" :::%s::: finished - exitCode: %d, duration: %d millis, output lines: %d on stdout, %d on stderr",
+                taskName,
+                exitCode,
+                System.currentTimeMillis() - startTime,
+                stdout.getLineCount(),
+                stderr.getLineCount()
+                ));
         if (exitCode != 0) {
             throw new CommandLineException(commandline + " has failed with exitCode = " + exitCode);
         }

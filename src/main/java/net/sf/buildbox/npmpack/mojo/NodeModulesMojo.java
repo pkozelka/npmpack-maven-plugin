@@ -152,7 +152,9 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         unArchiver.setSourceFile(binArtifactFile);
         unArchiver.setDestDirectory(node_modules);
         unArchiver.setUseJvmChmod(true);
+        final long startTime = System.currentTimeMillis();
         unArchiver.extract();
+        getLog().info(String.format("Unpacking took %d millis", System.currentTimeMillis() - startTime));
 
         // npm rebuild
         npm("npm_rebuild", "rebuild");
@@ -170,7 +172,9 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         archiver.setDestFile(archiveFileTmp);
         //NOTE: .bin dirs will be recreated by npm rebuild; that makes the archive platform independent
         archiver.addDirectory(node_modules, null, new String[]{"**/.bin/**"});
+        final long startTime = System.currentTimeMillis();
         archiver.createArchive();
+        getLog().info(String.format("Packing took %d millis", System.currentTimeMillis() - startTime));
 
         final Artifact pomArtifact = factory.createBuildArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), "pom");
         final File pomFile = new File(localRepository.getLayout().pathOf(pomArtifact));
@@ -187,7 +191,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                 artifact.getGroupId(),
                 artifact.getArtifactId(),
                 artifact.getVersion()));
-        getLog().info(String.format("Moving artifact to local repository: %s (%d bytes)", archiveFile, archiveFile.length()));
+        getLog().info(String.format("Moving artifact to local repository: %s (%d bytes)", archiveFile, archiveFileTmp.length()));
         FileUtils.moveFile(archiveFileTmp, archiveFile);
         // TODO: publish into nexus if desired
     }
