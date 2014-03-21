@@ -1,8 +1,12 @@
 package net.sf.buildbox.npmpack;
 
-import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import org.codehaus.plexus.util.FileUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -19,7 +23,7 @@ public class Utils {
      * @throws NoSuchAlgorithmException
      */
     public static String md5sumNormalized(File file) throws IOException, NoSuchAlgorithmException {
-        final String contents = FileUtils.readFileToString(file);
+        final String contents = FileUtils.fileRead(file);
         final String normalized = contents.replace("\r\n","\n").replace("\r", "\n");
         final byte[] normalizedBytes = normalized.getBytes();
         final InputStream is = new ByteArrayInputStream(normalizedBytes);

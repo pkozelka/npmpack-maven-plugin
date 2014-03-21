@@ -1,7 +1,6 @@
 package net.sf.buildbox.npmpack.mojo;
 
 import net.sf.buildbox.npmpack.Utils;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -12,13 +11,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.AbstractUnArchiver;
 import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.*;
 
 import java.io.File;
@@ -104,7 +103,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         try {
             final String packageJsonHash = Utils.md5sumNormalized(packageJson);
             final File oldHashFile = new File(node_modules, "package.json.hash");
-            final String oldHash = oldHashFile.exists() ? FileUtils.readFileToString(oldHashFile) : "__NONE__";
+            final String oldHash = oldHashFile.exists() ? FileUtils.fileRead(oldHashFile) : "__NONE__";
             if (oldHash.equals(packageJsonHash)) {
                 getLog().info(String.format("No change in %s (#%s), keeping %s", packageJson, packageJsonHash, node_modules));
             } else {
@@ -117,10 +116,13 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
 
                 if (node_modules.isDirectory()) {
                     final File backup = new File(workdir, "backup/" + node_modules.getName());
-                    FileUtils.deleteQuietly(backup);
+                    if (backup.isDirectory()) {
+                        FileUtils.deleteDirectory(backup);
+                    } else if (backup.exists()) {
+                        backup.delete();
+                    }
                     getLog().info(String.format("Thrashing %s to %s", node_modules, backup));
-                    backup.getParentFile().mkdirs();
-                    FileUtils.moveDirectory(node_modules, backup);
+                    FileUtils.rename(node_modules, backup);
                 }
                 try {
                     resolver.resolveAlways(artifact, remoteRepositories, localRepository);
@@ -131,7 +133,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
 
                 // save checksum
                 getLog().info(String.format("Saving hash marker into %s", oldHashFile));
-                FileUtils.writeStringToFile(oldHashFile, packageJsonHash);
+                FileUtils.fileWrite(oldHashFile, packageJsonHash);
                 getLog().info(String.format("Directory %s has been successfully recreated", node_modules));
             }
         } catch (IOException e) {
@@ -184,7 +186,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         final Artifact pomArtifact = factory.createBuildArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), "pom");
         final File pomFile = new File(localRepository.getLayout().pathOf(pomArtifact));
         getLog().info(String.format("Generating pom in %s", pomFile));
-        FileUtils.writeStringToFile(pomFile, String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        FileUtils.fileWrite(pomFile, String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n" +
                 "  <modelVersion>4.0.0</modelVersion>\n" +
                 "  <groupId>%s</groupId>\n" +
@@ -197,7 +199,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                 artifact.getArtifactId(),
                 artifact.getVersion()));
         getLog().info(String.format("Moving artifact to local repository: %s (%d bytes)", archiveFile, archiveFileTmp.length()));
-        FileUtils.moveFile(archiveFileTmp, archiveFile);
+        FileUtils.rename(archiveFileTmp, archiveFile);
         // TODO: publish into nexus if desired
     }
 }
