@@ -28,7 +28,7 @@ public class GruntTestMojo extends AbstractGruntMojo {
             if (skipTests) {
                 getLog().info("Tests are skipped");
             } else {
-                grunt(testCommand);
+                grunt("grunt-test", testCommand.split("\\s+"));
             }
         } catch (InterruptedException e) {
             throw new MojoExecutionException(e.getMessage(), e);

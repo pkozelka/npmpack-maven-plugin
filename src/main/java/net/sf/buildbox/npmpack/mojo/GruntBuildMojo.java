@@ -20,7 +20,7 @@ public class GruntBuildMojo extends AbstractGruntMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            grunt(buildCommand);
+            grunt("grunt-build", buildCommand.split("\\s+"));
         } catch (InterruptedException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (CommandLineException e) {
