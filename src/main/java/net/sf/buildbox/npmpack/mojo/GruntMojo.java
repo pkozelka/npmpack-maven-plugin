@@ -26,9 +26,6 @@ public class GruntMojo extends AbstractNpmpackMojo {
     @Parameter(defaultValue = "build", required = true)
     String gruntCommand;
 
-    @Parameter(defaultValue = "--no-color", required = true)
-    String gruntArguments;
-
     @Parameter(defaultValue = "false", required = true, property = "grunt.skip")
     boolean skip;
 
@@ -40,7 +37,6 @@ public class GruntMojo extends AbstractNpmpackMojo {
             final File localBin = new File(node_modules, ".bin");
             commandline.setExecutable(new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath());
             commandline.addArguments(gruntCommand.split("\\s+"));
-            commandline.addArguments(gruntArguments.split("\\s+"));
             if (skip) {
                 getLog().info("Grunt execution is skipped: " + CommandLineUtils.toString(commandline.getShellCommandline()));
             } else {
