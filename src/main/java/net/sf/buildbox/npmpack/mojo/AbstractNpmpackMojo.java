@@ -62,6 +62,9 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     @Parameter(defaultValue = "npm,npm.cmd", required = true, property = "npm.executable")
     String npmExecutables;
 
+    @Parameter(defaultValue = "${basedir}", required = true)
+    File basedir;
+
     final class MyStreamConsumer implements StreamConsumer {
         private final String prefix;
         private final boolean isErr;
@@ -139,6 +142,7 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
 
     protected void npm(String taskName, String... arguments) throws InterruptedException, CommandLineException {
         final Commandline commandline = new Commandline();
+        commandline.setWorkingDirectory(basedir);
         commandline.setExecutable(selectAlternative(npmExecutables));
         commandline.addArguments(arguments);
         executeCommandline(taskName, commandline);

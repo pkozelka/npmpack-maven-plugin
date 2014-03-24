@@ -1,7 +1,6 @@
 package net.sf.buildbox.npmpack.mojo;
 
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.cli.Arg;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.Commandline;
 
@@ -20,11 +19,11 @@ public abstract class AbstractGruntMojo extends AbstractNpmpackMojo {
 
     protected void grunt(String taskName, String... arguments) throws InterruptedException, CommandLineException {
         final Commandline commandline = new Commandline();
-        commandline.setExecutable(new File(node_modules, selectAlternative(gruntExecutables)).getAbsolutePath());
-        final Arg arg = new Commandline.Argument();
-        arg.setLine(gruntArguments);
-        commandline.addArg(arg);
+        commandline.setWorkingDirectory(basedir);
+        final File localBin = new File(node_modules, ".bin");
+        commandline.setExecutable(new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath());
         commandline.addArguments(arguments);
+        commandline.addArguments(gruntArguments.split("\\s+"));
         executeCommandline(taskName, commandline);
     }
 }
