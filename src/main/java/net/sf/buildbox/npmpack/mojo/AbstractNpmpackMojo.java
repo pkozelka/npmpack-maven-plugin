@@ -59,9 +59,16 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
     @Parameter(defaultValue = "node_modules", required = true)
     File node_modules;
 
+    /**
+     * The executable to run as NPM. By default, we expect that it is available on PATH.
+     */
     @Parameter(defaultValue = "npm,npm.cmd", required = true, property = "npm.executable")
     String npmExecutables;
 
+    /**
+     * Current project directory.
+     * Used internally to run grunt from the module's directory.
+     */
     @Parameter(defaultValue = "${basedir}", required = true)
     File basedir;
 
