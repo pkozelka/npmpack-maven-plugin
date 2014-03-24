@@ -185,7 +185,8 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         getLog().info(String.format("Packing took %d millis", System.currentTimeMillis() - startTime));
 
         final Artifact pomArtifact = factory.createBuildArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), "pom");
-        final File pomFile = new File(localRepository.getLayout().pathOf(pomArtifact));
+        final File pomFile = new File(localRepository.getBasedir(), localRepository.getLayout().pathOf(pomArtifact));
+        pomFile.getParentFile().mkdirs();
         getLog().info(String.format("Generating pom in %s", pomFile));
         FileUtils.fileWrite(pomFile, String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n" +
