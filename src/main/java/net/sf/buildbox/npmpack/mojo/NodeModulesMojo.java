@@ -35,9 +35,10 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
 
     /**
      * The groupId under which to cache the npm artifacts in the repository.
-     * <p>Recommended use: define once per whole project (or company), inside parent pom's pluginManagement.</p>
+     * <p>Recommended use: preferably, do not change; but if you have a reason to do so, define once per whole project (or company), inside parent pom's pluginManagement.</p>
+     * @todo: think about use in released manner. Elaborate on various usages in docs.
      */
-    @Parameter( defaultValue = "${project.groupId}.npmpack", required = true )
+    @Parameter( defaultValue = "npmpack", required = true )
     String binaryGroupId;
 
     /**
