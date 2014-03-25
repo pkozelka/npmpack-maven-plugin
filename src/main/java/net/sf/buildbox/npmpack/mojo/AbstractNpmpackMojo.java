@@ -1,11 +1,17 @@
 package net.sf.buildbox.npmpack.mojo;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.sf.buildbox.npmpack.JsonUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -13,6 +19,7 @@ import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -51,6 +58,22 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "package.json", required = true)
     File packageJson;
+
+    /**
+     * <p>If set, the computed checksum is performed on top of anonymized package.json file; this is useful when
+     * working with multiple modules with equal dependencies, as it ensures that they share the same cached artifact.
+     * </p>
+     * <p>If unset, only line endings are normalized to LF prior to checksum.
+     * </p>
+     * <p><b>Anonymization</b> is a simple process which replaces properties that identify the module with
+     * neutral identification; currently it is string "ANONYMIZED" in properties "name" and "version".
+     * Note that the package.json is also sorted (properties by name, recursively) and pretty-printed, so that
+     * all insignificant differences are eliminated.
+     </p>
+     * The file <code>node_modules/package.json</code> always c
+     */
+    @Parameter(defaultValue = "true", required = true)
+    boolean anonymize;
 
     /**
      * Pointer to node_modules directory.
@@ -95,6 +118,26 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
 
         public int getLineCount() {
             return lineCount;
+        }
+    }
+
+    protected String readPackageJson(File packageJson, boolean anonymize) throws IOException {
+        final String text = FileUtils.fileRead(packageJson);
+        // always call this, to at least validate that it is correct json format
+        final JsonParser parser = new JsonParser();
+        final JsonObject root = (JsonObject) parser.parse(text);
+        //JSONML.toJSONObject(text);
+        if (anonymize) {
+            getLog().info("Anonymizing name and version in " + packageJson);
+            root.addProperty("name", "ANONYMIZED");
+            root.addProperty("version", "ANONYMIZED");
+            JsonUtils.sortJsonDeep(root);
+            final Gson gson = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .create();
+            return gson.toJson(root);
+        } else {
+            return text.replace("\r\n","\n").replace("\r", "\n");
         }
     }
 

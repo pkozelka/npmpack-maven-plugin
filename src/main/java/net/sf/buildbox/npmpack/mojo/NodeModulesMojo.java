@@ -102,7 +102,8 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         */
 
         try {
-            final String packageJsonHash = Utils.md5sumNormalized(packageJson);
+            final String normalizedPackageJson = readPackageJson(packageJson, anonymize);
+            final String packageJsonHash = Utils.md5sum(normalizedPackageJson);
             final File oldHashFile = new File(node_modules, "package.json.hash");
             final String oldHash = oldHashFile.exists() ? FileUtils.fileRead(oldHashFile) : "__NONE__";
             if (oldHash.equals(packageJsonHash)) {
@@ -129,7 +130,7 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                     resolver.resolveAlways(artifact, remoteRepositories, localRepository);
                     unpack(artifact.getFile());
                 } catch (ArtifactNotFoundException e) {
-                    pack(artifact);
+                    pack(artifact, normalizedPackageJson);
                 }
 
                 // save checksum
@@ -168,13 +169,16 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         npm("npm_rebuild", "rebuild");
     }
 
-    private void pack(Artifact artifact) throws MojoExecutionException, IOException, CommandLineException, InterruptedException {
+    private void pack(Artifact artifact, String normalizedPackageJson) throws MojoExecutionException, IOException, CommandLineException, InterruptedException {
+        node_modules.mkdirs();
+        final File normalizedPackageJsonFile = new File(node_modules, packageJson.getName());
+        getLog().info(String.format("Saving normalized package.json file to %s", normalizedPackageJsonFile));
+        FileUtils.fileWrite(normalizedPackageJsonFile, normalizedPackageJson);
+
         npm("npm_install", "install");
 
         final File archiveFile = new File(localRepository.getBasedir(), localRepository.getLayout().pathOf(artifact));
         final File archiveFileTmp = new File(workdir, archiveFile.getName());
-
-        FileUtils.copyFile(packageJson, new File(node_modules, packageJson.getName()));
 
         final Archiver archiver = createArchiver();
         archiver.setDestFile(archiveFileTmp);
