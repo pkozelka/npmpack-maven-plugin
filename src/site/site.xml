@@ -45,7 +45,16 @@
             <item name="Goals" href="plugin-info.html"/>
             <item name="Features" href="features.html"/>
             <item name="Usage" href="usage.html">
-                <item name="Publish npm artifact" href="publish-npm.html"/>
+                <item name="Embedding grunt build" href="grunt.html"/>
+                <item name="Using TAR to compress data" href="tar.html"/>
+                <item name="Recommended configuration" href="best-practices.html"/>
+            </item>
+            <item name="TODO" href="usage.html">
+                <item name="Goal 'deploy' to publish artifacts for sharing" href="publish-npm.html"/>
+                <item name="Using faster external unzip" href="faster-unzip.html"/>
+                <item name="Using npmpack archetypes" href="archetypes.html"/>
+                <item name="Sample projects" href="samples.html"/>
+                <item name="Bower" href="bower.html"/>
             </item>
         </menu>
         <menu name="Links">
