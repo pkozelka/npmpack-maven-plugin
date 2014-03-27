@@ -60,6 +60,9 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     @Parameter( defaultValue = "${project.build.directory}", required = true)
     File workdir;
 
+    @Parameter(defaultValue = "false", property = "npmpack.allowNpmInstall", required = true)
+    boolean allowNpmInstall;
+
     private boolean isZip() {
         return archiveType.equals("zip");
     }
@@ -114,7 +117,6 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                 // repository lookup
                 getLog().info(String.format("Artifact %s:%s:%s", binaryGroupId, binaryArtifactId, packageJsonHash));
                 final Artifact artifact = factory.createBuildArtifact(binaryGroupId, binaryArtifactId, packageJsonHash, archiveType);
-                getLog().info(String.format("Trying to resolve artifact %s", artifact));
 
                 if (node_modules.isDirectory()) {
                     final File backup = new File(workdir, "backup/" + node_modules.getName());
@@ -126,11 +128,24 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                     getLog().info(String.format("Thrashing %s to %s", node_modules, backup));
                     FileUtils.rename(node_modules, backup);
                 }
+                final long startTime = System.currentTimeMillis();
                 try {
+                    getLog().info(String.format("Trying to resolve artifact %s", artifact));
                     resolver.resolveAlways(artifact, remoteRepositories, localRepository);
+                    getLog().info(String.format("Resolution (possibly including downloads) took %d millis", System.currentTimeMillis() - startTime));
                     unpack(artifact.getFile());
                 } catch (ArtifactNotFoundException e) {
-                    pack(artifact, normalizedPackageJson);
+                    getLog().warn(String.format("Resolution failed after %d millis", System.currentTimeMillis() - startTime));
+                    //TODO: only if allowNpmInstall; otherwise inform the user to set this flag and deploy
+                    // resulting artifact to a repository shared with others, so that insecure network access is
+                    // minimized and under supervision of a user
+                    if (allowNpmInstall) {
+                        pack(artifact, normalizedPackageJson);
+                    } else {
+                        getLog().error("To generate new npmpack, please add option '-Dnpmpack.allowNpmInstall' to your commandline.");
+                        getLog().error("Remember to upload the resulting pom and binary to your nearest maven repository, so that other users do not need to do the same.");
+                        throw new MojoExecutionException("Invoking npm install is disabled");
+                    }
                 }
 
                 // save checksum
@@ -165,7 +180,6 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         unArchiver.extract();
         getLog().info(String.format("Unpacking took %d millis", System.currentTimeMillis() - startTime));
 
-        // npm rebuild
         npm("npm_rebuild", "rebuild");
     }
 
