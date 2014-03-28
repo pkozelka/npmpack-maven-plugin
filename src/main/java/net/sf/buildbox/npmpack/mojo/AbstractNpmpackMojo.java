@@ -186,6 +186,12 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
                 stderr.getLineCount()
                 ));
         if (exitCode != 0) {
+            final String javaVersion = System.getProperty("java.version");
+            getLog().warn("Using java " + javaVersion + " from " + System.getProperty("java.home"));
+            if (javaVersion.startsWith("1.7.0_25")) {
+                getLog().warn("Java 1.7.0. update 25 is known to cause problems in executing npm. Upgrade your jdk!");
+                getLog().warn("See http://stackoverflow.com/a/19318378/455449 for details");
+            }
             throw new CommandLineException(commandline + " has failed with exitCode = " + exitCode);
         }
     }
