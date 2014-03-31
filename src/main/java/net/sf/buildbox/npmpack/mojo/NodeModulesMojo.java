@@ -74,13 +74,13 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     /**
      * <p>If specified, npmpack uses this external command to unpack the binary, instead of internal (java-based) implementation.
      * The purpose is to allow for a faster unzip if one is available on the given system.</p>
-     * <p>The command is expected (but not checked to) include two argument references, first for source archive file,
+     * <p>The command is expected (but not strictly checked to) include two <code>%s</code> placeholders, first for source archive file,
      * second for the target directory. For example:</p>
      * <ul>
      *     <li>unzip %s -d %s</li>
      *     <li>C:/bin/unzip.exe -q %s -d %s</li>
      * </ul>
-     *
+     * <p>Method {@link String#format(java.util.Locale, String, Object...)} is used to interpolate these placeholders; feel free to use any of its tricks to achieve desired results</p>
      * Note that paths with spaces in them can cause problems due to escaping.
      */
     @Parameter(defaultValue = "", property = "npmpack.unzip", required = false)
@@ -204,6 +204,9 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
             unArchiver.extract();
             getLog().info(String.format("Unpacking took %d millis", System.currentTimeMillis() - startTime));
         } else {
+            if (!unzipCommand.replaceAll("[^%]", "").equals("%%")) {
+                throw new MojoExecutionException(unzipCommand.replaceAll("[^%]", "") + " : External unzip command must contain exactly 2 placeholders: '" + unzipCommand + "'");
+            }
             final Commandline unzip = new Commandline(String.format(unzipCommand,
                     binArtifactFile, node_modules));
             unzip.setWorkingDirectory(basedir);
