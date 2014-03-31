@@ -18,6 +18,7 @@ import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.*;
 
 import java.io.File;
@@ -62,6 +63,21 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
 
     @Parameter(defaultValue = "false", property = "npmpack.allowNpmInstall", required = true)
     boolean allowNpmInstall;
+
+    /**
+     * <p>If specified, npmpack uses this external command to unpack the binary, instead of internal (java-based) implementation.
+     * The purpose is to allow for a faster unzip if one is available on the given system.</p>
+     * <p>The command is expected (but not checked to) include two argument references, first for source archive file,
+     * second for the target directory. For example:</p>
+     * <ul>
+     *     <li>unzip %s -d %s</li>
+     *     <li>C:/bin/unzip.exe -q %s -d %s</li>
+     * </ul>
+     *
+     * Note that paths with spaces in them can cause problems due to escaping.
+     */
+    @Parameter(defaultValue = "", property = "npmpack.unzip", required = false)
+    String unzipCommand;
 
     private boolean isZip() {
         return archiveType.equals("zip");
@@ -170,15 +186,22 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
         // unpack
         getLog().info(String.format("Unpacking %s to %s", binArtifactFile, node_modules));
         node_modules.mkdirs();
-        final AbstractUnArchiver unArchiver = createUnArchiver();
-        final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
-        unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
-        unArchiver.setSourceFile(binArtifactFile);
-        unArchiver.setDestDirectory(node_modules);
-        unArchiver.setUseJvmChmod(true);
-        final long startTime = System.currentTimeMillis();
-        unArchiver.extract();
-        getLog().info(String.format("Unpacking took %d millis", System.currentTimeMillis() - startTime));
+        if (StringUtils.isBlank(unzipCommand)) {
+            final AbstractUnArchiver unArchiver = createUnArchiver();
+            final int logLevel = getLog().isDebugEnabled() ? Logger.LEVEL_DEBUG : Logger.LEVEL_INFO;
+            unArchiver.enableLogging(new ConsoleLogger(logLevel, "unpack"));
+            unArchiver.setSourceFile(binArtifactFile);
+            unArchiver.setDestDirectory(node_modules);
+            unArchiver.setUseJvmChmod(true);
+            final long startTime = System.currentTimeMillis();
+            unArchiver.extract();
+            getLog().info(String.format("Unpacking took %d millis", System.currentTimeMillis() - startTime));
+        } else {
+            final Commandline unzip = new Commandline(String.format(unzipCommand,
+                    binArtifactFile, node_modules));
+            unzip.setWorkingDirectory(basedir);
+            super.executeCommandline("unpack", unzip);
+        }
 
         npm("npm_rebuild", "rebuild");
     }
