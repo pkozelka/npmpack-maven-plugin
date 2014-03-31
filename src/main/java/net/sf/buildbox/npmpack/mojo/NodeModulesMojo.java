@@ -61,6 +61,13 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     @Parameter( defaultValue = "${project.build.directory}", required = true)
     File workdir;
 
+    /**
+     * Enable this flag to allow the <code>npm install</code> command. By default, this is disabled, because this command
+     * downloads from (potentially) many internet sites, which would make the build very. Therefore, whenever this is
+     * needed - which means, when <code>package.json</code> is changed - the developer is supposed to manually run the
+     * build with this flag turned on, and ideally deploy the resulting artifact into the maven repository. Then the
+     * subsequent builds are free of uncontrolled internet access and thus more reliable and deterministic.
+     */
     @Parameter(defaultValue = "false", property = "npmpack.allowNpmInstall", required = true)
     boolean allowNpmInstall;
 
