@@ -1,15 +1,8 @@
 ## Overview
 
-NPMPACK maven plugin is useful for integrating the world of Maven modules with NPM-based build of UI.
+NPMPACK maven plugin simplifies integration NPM-based build of UI into Maven build.
 
-It particularly helps the developer to:
+It is designed to:
 
-- get rid of buildtime dependency on various internet servers (imposed by `npm install`)
-- improve build speed by using Maven's mature repository system and caching
-- ... see more at [features page](features.html)
-### todo
-
-This is the entry point to the module's public site.
-Add more usage examples, some workflow diagram etc.
-
-Also think about adding bower support.
+- reduce or prevent NPM to download bits from whole internet
+- cover npm dependencies by Maven's mature repository and caching system
