@@ -35,6 +35,9 @@
     <version position="right"/>
 
     <body>
+        <head>
+            <link rel="shortcut icon" href="favicon-32.ico"/>
+        </head>
         <breadcrumbs>
             <item name="Buildbox" href="http://buildbox.github.io"/>
             <item name="npmpack-maven-plugin" href="index.html"/>
