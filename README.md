@@ -4,7 +4,7 @@
 
 A Maven Plugin integrating NPM-based build of UI into Maven build.
 
-See the docs here: src/site/markdown/index.md src/site/markdown/index.html
+See the docs here: [Overview.md](src/site/markdown/index.md) [Overview.html](src/site/markdown/index.html)
 
 This page will be visible on the main bitbucket/github page, and should therefore contain:
 
