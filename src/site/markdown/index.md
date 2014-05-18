@@ -17,12 +17,12 @@ Therefore we differentiate between two build types:
 
 ### Regular build
 This is the everyday build, intended for use in Jenkins and most developer usecases.
-To enforce it, add `-DallowNpmInstall=false` to Maven commandline - but it is a default, unless your POMs define otherwise.
+To enforce it, add `-Dnpmpack.allowNpmInstall=false` to Maven commandline - but it is a default, unless your POMs define otherwise.
 
 ### Maintenance build
 During this build, we allow NPM to install components, or different versions, from internet.
 This gives the developer an opportunity to take care with any issues that NPM may have.
-To use it, add `-DallowNpmInstall` to your Maven Commandline.
+To use it, add `-Dnpmpack.allowNpmInstall` to your Maven Commandline.
 
 In this case, the plugin does not fail when `package.json` is changed; instead, it invokes `npm install` and generates new package. The developer should upload this new package into a Nexus (or other Maven Repository Manager) so that CI and other developers can use it.
 

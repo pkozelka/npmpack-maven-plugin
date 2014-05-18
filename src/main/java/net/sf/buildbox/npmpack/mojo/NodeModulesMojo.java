@@ -71,6 +71,10 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
     @Parameter(defaultValue = "false", property = "npmpack.allowNpmInstall", required = true)
     boolean allowNpmInstall;
 
+    @Parameter(defaultValue = "To generate new npmpack, please add option '-Dnpmpack.allowNpmInstall' to your commandline. Remember to upload the resulting pom and binary to your nearest maven repository, so that other users do not need to do the same.",
+            property = "npmpack.allowNpmInstall", required = true)
+    String npmInstallNotAllowedMsg;
+
     /**
      * <p>If specified, npmpack uses this external command to unpack the binary, instead of internal (java-based) implementation.
      * The purpose is to allow for a faster unzip if one is available on the given system.</p>
@@ -165,9 +169,8 @@ public class NodeModulesMojo extends AbstractNpmpackMojo {
                     if (allowNpmInstall) {
                         pack(artifact, normalizedPackageJson);
                     } else {
-                        getLog().error("To generate new npmpack, please add option '-Dnpmpack.allowNpmInstall' to your commandline.");
-                        getLog().error("Remember to upload the resulting pom and binary to your nearest maven repository, so that other users do not need to do the same.");
-                        throw new MojoExecutionException("Invoking npm install is disabled");
+                        getLog().error(npmInstallNotAllowedMsg);
+                        throw new MojoExecutionException("Invoking npm install is NOT allowed");
                     }
                 }
 
