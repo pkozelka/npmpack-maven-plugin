@@ -31,8 +31,17 @@ This makes the build frequently exposed to interaction with network, typically i
 
 ## How it works
 
+The problematic part is that `npm` gathers dependencies in directory `node_modules` during every build.
+
+To prevent this, the `npmpack-maven-plugin` takes complete care about this directory. That is:
+
+* if it exists but is obsolete (because `package.json` has changed), deletes it
+* if it does not exist, downloads (or locates in local repo) *maven artifact* which contains it
+* if it cannot be downloaded, it normally fails the build *(regular build)*
+* in *maintenance build*, it calls `npm install` and then packages the resulting `node_modules` as a maven artifact. Then the developer's should publish it into Nexus for sharing with the team.
+
 We assume that npm dependencies (expressed in the `package.json` file) do not change very often.
-Therefore we differentiate between two build types:
+Therefore, as noted above, we differentiate between two build types:
 
 * **regular** build, which is the one that your CI system is configured to always perform, and developer uses most of the time. NPM is *not* allowed to access internet; everything must come through Maven repositories.
 * **maintenance** build, during which developer prepares Maven artifacts wrapping the changed npm dependencies. NPM of course uses internet to gather the packages.
