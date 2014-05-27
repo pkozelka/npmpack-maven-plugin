@@ -29,7 +29,7 @@ Theoretically, a generic caching HTTP proxy can be involved to handle its role, 
 But here comes the other disadvantage of `node` approach: the local cache is (by default) in the `node_modules` directory, and is therefore subject to frequent cleanup.
 This makes the build frequently exposed to interaction with network, typically internet, and therefore very sensitive to various kinds of outages. Simply, less stable. 
 
-## How it works
+## The integrated build
 
 The problematic part is that `npm` gathers dependencies in directory `node_modules` during every build.
 
