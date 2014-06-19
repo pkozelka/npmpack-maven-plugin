@@ -1,4 +1,4 @@
-package net.sf.buildbox.npmpack.mojo;
+package net.kozelka.npmpack.mojo;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

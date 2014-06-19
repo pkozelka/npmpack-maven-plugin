@@ -1,9 +1,9 @@
-package net.sf.buildbox.npmpack.mojo;
+package net.kozelka.npmpack.mojo;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import net.sf.buildbox.npmpack.Utils;
+import net.kozelka.npmpack.Utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;

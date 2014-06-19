@@ -1,5 +1,4 @@
-package net.sf.buildbox.npmpack;
-
+package net.kozelka.npmpack;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

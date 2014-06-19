@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.sf.buildbox.maven</groupId>
+    <groupId>net.kozelka.maven</groupId>
     <artifactId>npmpack-maven-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
@@ -11,7 +11,7 @@
         <artifactId>oss-parent</artifactId>
         <version>9</version>
     </parent>
-    <url>http://buildbox.github.com/${project.artifactId}</url>
+    <url>http://pkozelka.github.com/${project.artifactId}</url>
     <description>Simplify embedding of NPM build inside Maven build</description>
     <dependencies>
         <dependency>
@@ -217,22 +217,13 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <mailingLists>
-        <mailingList>
-            <archive>http://groups.google.com/group/buildbox</archive>
-            <name>buildbox</name>
-            <post>buildbox@googlegroups.com</post>
-            <subscribe>http://groups.google.com/group/buildbox</subscribe>
-            <unsubscribe>buildbox+unsubscribe@googlegroups.com</unsubscribe>
-        </mailingList>
-    </mailingLists>
     <issueManagement>
         <system>github</system>
-        <url>https://github.com/buildbox/${project.artifactId}/issues</url>
+        <url>https://github.com/pkozelka/${project.artifactId}/issues</url>
     </issueManagement>
     <organization>
-        <name>Buildbox</name>
-        <url>https://github.com/buildbox</url>
+        <name>Petr Kozelka</name>
+        <url>https://pkozelka.github.io</url>
     </organization>
     <scm>
         <connection>scm:git:http://bitbucket.org/pkozelka/npmpack-maven-plugin.git</connection>

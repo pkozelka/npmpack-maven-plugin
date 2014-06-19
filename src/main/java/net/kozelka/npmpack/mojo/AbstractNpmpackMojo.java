@@ -1,10 +1,10 @@
-package net.sf.buildbox.npmpack.mojo;
+package net.kozelka.npmpack.mojo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.sf.buildbox.npmpack.JsonUtils;
+import net.kozelka.npmpack.JsonUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;

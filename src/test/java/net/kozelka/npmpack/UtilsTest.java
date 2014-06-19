@@ -1,4 +1,4 @@
-package net.sf.buildbox.npmpack;
+package net.kozelka.npmpack;
 
 import org.junit.Test;
 

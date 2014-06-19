@@ -1,4 +1,4 @@
-package net.sf.buildbox.npmpack;
+package net.kozelka.npmpack;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -15,14 +15,13 @@
             <topBarEnabled>true</topBarEnabled>
             <navBarStyle>navbar-inverse</navBarStyle>
             <topBarIcon>
-                <name>Buildbox</name>
-                <alt>Buildbox</alt>
-                <src>buildbox-logo-wide.svg</src>
-                <href>http://buildbox.github.io</href>
+                <name>NPMPACK</name>
+                <alt>npmpack-maven-plugin</alt>
+                <href>http://pkozelka.github.io</href>
             </topBarIcon>
             <sideBarEnabled>false</sideBarEnabled>
             <gitHub>
-                <projectId>buildbox/npmpack-maven-plugin</projectId>
+                <projectId>pkozelka/npmpack-maven-plugin</projectId>
                 <ribbonOrientation>right</ribbonOrientation>
                 <ribbonColor>green</ribbonColor>
             </gitHub>
@@ -39,7 +38,7 @@
             <link rel="shortcut icon" href="favicon-32.ico"/>
         </head>
         <breadcrumbs>
-            <item name="Buildbox" href="http://buildbox.github.io"/>
+            <item name="Maven Plugins" href="http://pkozelka.github.io#maven-plugins"/>
             <item name="npmpack-maven-plugin" href="index.html"/>
         </breadcrumbs>
 
@@ -63,7 +62,6 @@
         <menu name="Links">
             <item name="Apache" href="http://www.apache.org/"/>
             <item name="Maven 2" href="http://maven.apache.org/"/>
-            <item name="Google groups" href="http://groups.google.com/group/buildbox"/>
         </menu>
         <menu name="Reports" ref="reports"/>
     </body>
