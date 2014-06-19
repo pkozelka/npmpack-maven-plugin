@@ -1,5 +1,8 @@
 package net.sf.buildbox.npmpack.mojo;
 
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import net.sf.buildbox.npmpack.Utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
@@ -19,11 +22,8 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.codehaus.plexus.util.cli.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Prepares the <code>node_modules</code> directory.
