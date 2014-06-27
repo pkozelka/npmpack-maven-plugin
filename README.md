@@ -4,7 +4,7 @@
 
 A Maven Plugin that simplifies integration of UI build, performed by NodeJs/NPM based tools like Grunt, into Maven build.
 
-See the docs here: [Overview.md](http://pkozelka.github.com/npmpack-maven-plugin/src/site/markdown/index.md)
+See the docs here: [Overview.md](http://pkozelka.github.io/npmpack-maven-plugin/src/site/markdown/index.md)
 
 ## Contributing
 

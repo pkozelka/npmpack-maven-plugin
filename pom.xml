@@ -11,7 +11,7 @@
         <artifactId>oss-parent</artifactId>
         <version>9</version>
     </parent>
-    <url>http://pkozelka.github.com/${project.artifactId}</url>
+    <url>http://pkozelka.github.io/${project.artifactId}</url>
     <description>Simplify embedding of NPM build inside Maven build</description>
     <dependencies>
         <dependency>
