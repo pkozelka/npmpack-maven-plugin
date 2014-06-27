@@ -38,7 +38,7 @@
             <link rel="shortcut icon" href="favicon-32.ico"/>
         </head>
         <breadcrumbs>
-            <item name="Maven Plugins" href="http://pkozelka.github.io#maven-plugins"/>
+            <item name="code" href="http://pkozelka.github.io"/>
             <item name="npmpack-maven-plugin" href="index.html"/>
         </breadcrumbs>
 

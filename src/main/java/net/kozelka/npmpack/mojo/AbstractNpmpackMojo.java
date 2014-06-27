@@ -184,7 +184,7 @@ public abstract class AbstractNpmpackMojo extends AbstractMojo {
                 System.currentTimeMillis() - startTime,
                 stdout.getLineCount(),
                 stderr.getLineCount()
-                ));
+        ));
         if (exitCode != 0) {
             final String javaVersion = System.getProperty("java.version");
             getLog().warn("Using java " + javaVersion + " from " + System.getProperty("java.home"));
