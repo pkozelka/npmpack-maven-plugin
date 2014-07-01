@@ -163,7 +163,7 @@
                 <version>0.9</version>
                 <configuration>
                     <message>Creating site for ${project.version}</message>
-                    &lt;!&ndash;<dryRun>true</dryRun>&ndash;&gt;
+                    <noJekyll>true</noJekyll>
                 </configuration>
                 <executions>
                     <execution>
