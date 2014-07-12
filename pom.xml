@@ -11,7 +11,7 @@
         <artifactId>oss-parent</artifactId>
         <version>9</version>
     </parent>
-    <url>http://pkozelka.github.io/${project.artifactId}</url>
+    <url>http://code.kozelka.net/${project.artifactId}</url>
     <description>Simplify embedding of NPM build inside Maven build</description>
     <dependencies>
         <dependency>
@@ -220,7 +220,7 @@
     </issueManagement>
     <organization>
         <name>Petr Kozelka</name>
-        <url>https://pkozelka.github.io</url>
+        <url>http://kozelka.net</url>
     </organization>
     <scm>
         <connection>scm:git:http://github.com/pkozelka/npmpack-maven-plugin.git</connection>
