@@ -148,6 +148,7 @@
                         </goals>
                         <configuration>
                             <target>
+                                <mkdir dir="${project.reporting.outputDirectory}"/>
                                 <delete includeEmptyDirs="true">
                                     <fileset dir="${project.reporting.outputDirectory}" excludes=".git/**"/>
                                 </delete>
