@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.kozelka.maven</groupId>
     <artifactId>npmpack-maven-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.3</version>
     <packaging>maven-plugin</packaging>
     <name>${project.artifactId}</name>
     <parent>
@@ -148,12 +148,12 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.reporting.outputDirectory}"/>
+                                <mkdir dir="${project.reporting.outputDirectory}" />
                                 <delete includeEmptyDirs="true">
-                                    <fileset dir="${project.reporting.outputDirectory}" excludes=".git/**"/>
+                                    <fileset dir="${project.reporting.outputDirectory}" excludes=".git/**" />
                                 </delete>
                                 <copy todir="${project.reporting.outputDirectory}">
-                                    <fileset dir="src/site/markdown" excludes="**/*.md"/>
+                                    <fileset dir="src/site/markdown" excludes="**/*.md" />
                                 </copy>
                             </target>
                         </configuration>
