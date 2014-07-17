@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Utils xref</title>
+<link type="text/css" rel="stylesheet" href="../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../apidocs/net/kozelka/npmpack/Utils.html">View Javadoc</a></div><pre>
+
+<a class="jxr_linenumber" name="1" href="#1">1</a>   <strong class="jxr_keyword">package</strong> net.kozelka.npmpack;
+<a class="jxr_linenumber" name="2" href="#2">2</a>   
+<a class="jxr_linenumber" name="3" href="#3">3</a>   <strong class="jxr_keyword">import</strong> java.io.ByteArrayInputStream;
+<a class="jxr_linenumber" name="4" href="#4">4</a>   <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="5" href="#5">5</a>   <strong class="jxr_keyword">import</strong> java.io.InputStream;
+<a class="jxr_linenumber" name="6" href="#6">6</a>   <strong class="jxr_keyword">import</strong> java.security.MessageDigest;
+<a class="jxr_linenumber" name="7" href="#7">7</a>   <strong class="jxr_keyword">import</strong> java.security.NoSuchAlgorithmException;
+<a class="jxr_linenumber" name="8" href="#8">8</a>   
+<a class="jxr_linenumber" name="9" href="#9">9</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="10" href="#10">10</a>  <em class="jxr_javadoccomment"> * @author Petr Kozelka</em>
+<a class="jxr_linenumber" name="11" href="#11">11</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="12" href="#12">12</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../net/kozelka/npmpack/Utils.html">Utils</a> {
+<a class="jxr_linenumber" name="13" href="#13">13</a>  
+<a class="jxr_linenumber" name="14" href="#14">14</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String md5sum(String text) <strong class="jxr_keyword">throws</strong> IOException, NoSuchAlgorithmException {
+<a class="jxr_linenumber" name="15" href="#15">15</a>          <strong class="jxr_keyword">final</strong> byte[] normalizedBytes = text.getBytes();
+<a class="jxr_linenumber" name="16" href="#16">16</a>          <strong class="jxr_keyword">final</strong> InputStream is = <strong class="jxr_keyword">new</strong> ByteArrayInputStream(normalizedBytes);
+<a class="jxr_linenumber" name="17" href="#17">17</a>          <strong class="jxr_keyword">return</strong> hex(md5sum(is));
+<a class="jxr_linenumber" name="18" href="#18">18</a>      }
+<a class="jxr_linenumber" name="19" href="#19">19</a>  
+<a class="jxr_linenumber" name="20" href="#20">20</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="21" href="#21">21</a>  <em class="jxr_javadoccomment">     * inspired by <a href="http://stackoverflow.com/a/304275/455449" target="alexandria_uri">http://stackoverflow.com/a/304275/455449</a></em>
+<a class="jxr_linenumber" name="22" href="#22">22</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="23" href="#23">23</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte[] md5sum(InputStream fis) <strong class="jxr_keyword">throws</strong> IOException, NoSuchAlgorithmException {
+<a class="jxr_linenumber" name="24" href="#24">24</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="25" href="#25">25</a>              <strong class="jxr_keyword">final</strong> MessageDigest md5 = MessageDigest.getInstance(<span class="jxr_string">"MD5"</span>);
+<a class="jxr_linenumber" name="26" href="#26">26</a>              <strong class="jxr_keyword">final</strong> byte[] buffer = <strong class="jxr_keyword">new</strong> byte[1024];
+<a class="jxr_linenumber" name="27" href="#27">27</a>              <strong class="jxr_keyword">int</strong> numRead;
+<a class="jxr_linenumber" name="28" href="#28">28</a>              <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="29" href="#29">29</a>                  numRead = fis.read(buffer);
+<a class="jxr_linenumber" name="30" href="#30">30</a>                  <strong class="jxr_keyword">if</strong> (numRead &gt; 0) {
+<a class="jxr_linenumber" name="31" href="#31">31</a>                      md5.update(buffer, 0, numRead);
+<a class="jxr_linenumber" name="32" href="#32">32</a>                  }
+<a class="jxr_linenumber" name="33" href="#33">33</a>              } <strong class="jxr_keyword">while</strong> (numRead != -1);
+<a class="jxr_linenumber" name="34" href="#34">34</a>              <strong class="jxr_keyword">return</strong> md5.digest();
+<a class="jxr_linenumber" name="35" href="#35">35</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="36" href="#36">36</a>              fis.close();
+<a class="jxr_linenumber" name="37" href="#37">37</a>          }
+<a class="jxr_linenumber" name="38" href="#38">38</a>      }
+<a class="jxr_linenumber" name="39" href="#39">39</a>  
+<a class="jxr_linenumber" name="40" href="#40">40</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String hex(byte[] bytes) <strong class="jxr_keyword">throws</strong> IOException, NoSuchAlgorithmException {
+<a class="jxr_linenumber" name="41" href="#41">41</a>          <strong class="jxr_keyword">final</strong> StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="42" href="#42">42</a>          <strong class="jxr_keyword">for</strong> (byte b : bytes) {
+<a class="jxr_linenumber" name="43" href="#43">43</a>              result.append(Integer.toHexString((b &amp; 0xff) + 0x100).substring(1));
+<a class="jxr_linenumber" name="44" href="#44">44</a>          }
+<a class="jxr_linenumber" name="45" href="#45">45</a>          <strong class="jxr_keyword">return</strong> result.toString();
+<a class="jxr_linenumber" name="46" href="#46">46</a>      }
+<a class="jxr_linenumber" name="47" href="#47">47</a>  }
+</pre>
+<hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
+</html>
+

@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20140718" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>npmpack-maven-plugin - Plugin Documentation</title>
+    <title>npmpack-maven-plugin - FindBugs Bug Detector Report</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -177,7 +177,7 @@
         npmpack-maven-plugin</a>
                     <span class="divider">/</span>
       </li>
-        <li class="active ">Plugin Documentation</li>
+        <li class="active ">FindBugs Bug Detector Report</li>
         
                 
                     
@@ -194,71 +194,84 @@
         <div id="bodyColumn" >
                                   
             <div class="section">
-<h2>Plugin Documentation<a name="Plugin_Documentation"></a></h2><a name="Plugin_Documentation"></a>
-<p>Goals available for this plugin:</p>
+<h2>FindBugs Bug Detector Report<a name="FindBugs_Bug_Detector_Report"></a></h2>
+<p>The following document contains the results of <a class="externalLink" href="http://findbugs.sourceforge.net">FindBugs Report</a></p>
+<p>FindBugs Version is <i>2.0.3</i></p>
+<p>Threshold is <i>medium</i></p>
+<p>Effort is <i>min</i></p></div>
+<div class="section">
+<h2>Summary<a name="Summary"></a></h2>
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>Goal</th>
-<th>Description</th></tr>
+<th>Classes</th>
+<th>Bugs</th>
+<th>Errors</th>
+<th>Missing Classes</th></tr>
 <tr class="b">
-<td><a href="grunt-mojo.html">npmpack:grunt</a></td>
-<td>Executes grunt in order to perform grunt-based build.</td></tr>
-<tr class="a">
-<td><a href="node_modules-mojo.html">npmpack:node_modules</a></td>
-<td>Prepares the <code>node_modules</code> directory. 
-<p>If it exists, uses MD5 hash of the package.json file is used to
-determine if its contents should be updated from "npm install".</p>
-<p>If it does not exist, unpacks it from an archive within maven
-repository. If that does not exist, uses "npm install" to produce
-it.</p></td></tr></table>
+<td>7</td>
+<td>5</td>
+<td>0</td>
+<td>0</td></tr></table></div>
 <div class="section">
-<h3>System Requirements<a name="System_Requirements"></a></h3><a name="System_Requirements"></a>
-<p>The following specifies the minimum requirements to run this Maven plugin:</p>
+<h2>Files<a name="Files"></a></h2>
 <table border="0" class="table table-striped">
 <tr class="a">
-<td>Maven</td>
-<td>2.0</td></tr>
+<th>Class</th>
+<th>Bugs</th></tr>
 <tr class="b">
-<td>JDK</td>
-<td>Default target for maven-compiler-plugin version 2.5.1</td></tr>
+<td><a href="#net.kozelka.npmpack.Utils">net.kozelka.npmpack.Utils</a></td>
+<td>1</td></tr>
 <tr class="a">
-<td>Memory</td>
-<td>No minimum requirement.</td></tr>
-<tr class="b">
-<td>Disk Space</td>
-<td>No minimum requirement.</td></tr></table></div>
+<td><a href="#net.kozelka.npmpack.mojo.NodeModulesMojo">net.kozelka.npmpack.mojo.NodeModulesMojo</a></td>
+<td>4</td></tr></table></div><a name="net.kozelka.npmpack.Utils"></a>
 <div class="section">
-<h3>Usage<a name="Usage"></a></h3><a name="Usage"></a>
-<p>You should specify the version in your project's plugin configuration:</p>
-<div class="source">
-<pre>&lt;project&gt;
-  ...
-  &lt;build&gt;
-    &lt;!-- To define the plugin version in your parent POM --&gt;
-    &lt;pluginManagement&gt;
-      &lt;plugins&gt;
-        &lt;plugin&gt;
-          &lt;groupId&gt;net.kozelka.maven&lt;/groupId&gt;
-          &lt;artifactId&gt;npmpack-maven-plugin&lt;/artifactId&gt;
-          &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-        &lt;/plugin&gt;
-        ...
-      &lt;/plugins&gt;
-    &lt;/pluginManagement&gt;
-    &lt;!-- To use the plugin goals in your POM or parent POM --&gt;
-    &lt;plugins&gt;
-      &lt;plugin&gt;
-        &lt;groupId&gt;net.kozelka.maven&lt;/groupId&gt;
-        &lt;artifactId&gt;npmpack-maven-plugin&lt;/artifactId&gt;
-        &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-      &lt;/plugin&gt;
-      ...
-    &lt;/plugins&gt;
-  &lt;/build&gt;
-  ...
-&lt;/project&gt;
-</pre></div>
-<p>For more information, see <a class="externalLink" href="http://maven.apache.org/guides/mini/guide-configuring-plugins.html">&quot;Guide to Configuring Plug-ins&quot;</a></p></div></div>
+<h3>net.kozelka.npmpack.Utils<a name="net.kozelka.npmpack.Utils"></a></h3>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>Bug</th>
+<th>Category</th>
+<th>Details</th>
+<th>Line</th>
+<th>Priority</th></tr>
+<tr class="a">
+<td>Found reliance on default encoding in net.kozelka.npmpack.Utils.md5sum(String): String.getBytes()</td>
+<td>I18N</td>
+<td><a class="externalLink" href="http://findbugs.sourceforge.net/bugDescriptions.html#DM_DEFAULT_ENCODING">DM_DEFAULT_ENCODING</a></td>
+<td><a href="./xref/net/kozelka/npmpack/Utils.html#L15">15</a></td>
+<td>High</td></tr></table></div><a name="net.kozelka.npmpack.mojo.NodeModulesMojo"></a>
+<div class="section">
+<h3>net.kozelka.npmpack.mojo.NodeModulesMojo<a name="net.kozelka.npmpack.mojo.NodeModulesMojo"></a></h3>
+<table border="0" class="table table-striped">
+<tr class="b">
+<th>Bug</th>
+<th>Category</th>
+<th>Details</th>
+<th>Line</th>
+<th>Priority</th></tr>
+<tr class="a">
+<td>Exceptional return value of java.io.File.delete() ignored in net.kozelka.npmpack.mojo.NodeModulesMojo.execute()</td>
+<td>BAD_PRACTICE</td>
+<td><a class="externalLink" href="http://findbugs.sourceforge.net/bugDescriptions.html#RV_RETURN_VALUE_IGNORED_BAD_PRACTICE">RV_RETURN_VALUE_IGNORED_BAD_PRACTICE</a></td>
+<td><a href="./xref/net/kozelka/npmpack/mojo/NodeModulesMojo.html#L153">153</a></td>
+<td>Medium</td></tr>
+<tr class="b">
+<td>Exceptional return value of java.io.File.mkdirs() ignored in net.kozelka.npmpack.mojo.NodeModulesMojo.pack(Artifact, String)</td>
+<td>BAD_PRACTICE</td>
+<td><a class="externalLink" href="http://findbugs.sourceforge.net/bugDescriptions.html#RV_RETURN_VALUE_IGNORED_BAD_PRACTICE">RV_RETURN_VALUE_IGNORED_BAD_PRACTICE</a></td>
+<td><a href="./xref/net/kozelka/npmpack/mojo/NodeModulesMojo.html#L223">223</a></td>
+<td>Medium</td></tr>
+<tr class="a">
+<td>Exceptional return value of java.io.File.mkdirs() ignored in net.kozelka.npmpack.mojo.NodeModulesMojo.unpack(File)</td>
+<td>BAD_PRACTICE</td>
+<td><a class="externalLink" href="http://findbugs.sourceforge.net/bugDescriptions.html#RV_RETURN_VALUE_IGNORED_BAD_PRACTICE">RV_RETURN_VALUE_IGNORED_BAD_PRACTICE</a></td>
+<td><a href="./xref/net/kozelka/npmpack/mojo/NodeModulesMojo.html#L198">198</a></td>
+<td>Medium</td></tr>
+<tr class="b">
+<td>Format string should use %n rather than \n in net.kozelka.npmpack.mojo.NodeModulesMojo.pack(Artifact, String)</td>
+<td>BAD_PRACTICE</td>
+<td><a class="externalLink" href="http://findbugs.sourceforge.net/bugDescriptions.html#VA_FORMAT_STRING_USES_NEWLINE">VA_FORMAT_STRING_USES_NEWLINE</a></td>
+<td><a href="./xref/net/kozelka/npmpack/mojo/NodeModulesMojo.html#L245">245</a></td>
+<td>Medium</td></tr></table></div>
                   </div>
           </div>
 
