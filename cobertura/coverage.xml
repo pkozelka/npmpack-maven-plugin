@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 
-<coverage line-rate="0.0" branch-rate="0.0" lines-covered="0" lines-valid="216" branches-covered="0" branches-valid="70" complexity="3.8095238095238093" version="2.0.3" timestamp="1405636638621">
+<coverage line-rate="0.0" branch-rate="0.0" lines-covered="0" lines-valid="216" branches-covered="0" branches-valid="70" complexity="3.8095238095238093" version="2.0.3" timestamp="1405717146206">
 	<sources>
 		<source>/home/pk/github.com/npmpack-maven-plugin/src/main/java</source>
 		<source>--source</source>
