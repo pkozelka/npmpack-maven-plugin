@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20140905" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>npmpack-maven-plugin - Overview</title>
+    <title>npmpack-maven-plugin - Changes Report</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -179,7 +179,7 @@
         npmpack-maven-plugin</a>
                     <span class="divider">»</span>
       </li>
-        <li class="active ">Overview</li>
+        <li class="active ">Changes Report</li>
         
                 
                     
@@ -196,58 +196,81 @@
         <div id="bodyColumn" >
                                   
             <div class="section">
-<h2>Overview<a name="Overview"></a></h2>
-<p>NPMPACK maven plugin simplifies integration of UI build, performed by NodeJs/NPM based tools like Grunt, into Maven build.</p>
-<p>It is designed to:</p>
-
-<ul>
-  
-<li>connect the two worlds, Maven and NPM, without compromises and hard impact on workflow of any of them</li>
-  
-<li>reduce or prevent NPM to download bits from whole internet during regular project build, to remove significant source of build instability</li>
-  
-<li>store npm dependencies by Maven&#x2019;s mature repository and caching system</li>
-</ul></div>
+<h2>Changes Report<a name="Changes_Report"></a></h2><a name="Changes_Report"></a>
 <div class="section">
-<h2>The difference between Maven and Grunt build<a name="The_difference_between_Maven_and_Grunt_build"></a></h2>
-<p><img src="npmpack-TypicalMavenBuild.png" alt="Typical Maven Build" /> <img src="npmpack-TypicalGruntBuild.png" alt="Typical Grunt Build" /></p>
-<p>The important piece here is the <b>Nexus</b> server (or in general, Maven Repository Manager).</p>
-<p>It acts as the caching proxy, which isolates build of the project from temporary outages. Cached artifacts are typically available on your local network.</p>
-<p>Another important point is that Maven&#x2019;s local repository is <i>outside</i> the project source tree, and is therefore not frequently cleaned. </p>
-<p>It introduces yet another level of caching, this time directly at the machine. </p>
-<p>With <tt>grunt</tt>, which uses <tt>node</tt> and <tt>npm</tt> for preparing dependencies, there is no such component. Theoretically, a generic caching HTTP proxy can be involved to handle its role, and probably some already exists. TODO: explore this.</p>
-<p>But here comes the other disadvantage of <tt>node</tt> approach: the local cache is (by default) in the <tt>node_modules</tt> directory, and is therefore subject to frequent cleanup. This makes the build frequently exposed to interaction with network, typically internet, and therefore very sensitive to various kinds of outages. Simply, less stable. </p></div>
+<h3>Release History<a name="Release_History"></a></h3><a name="Release_History"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Version</th>
+<th>Date</th>
+<th>Description</th></tr>
+<tr class="b">
+<td><a href="#a1.0-SNAPSHOT">1.0-SNAPSHOT</a></td>
+<td>&#160;</td>
+<td>&#160;</td></tr>
+<tr class="a">
+<td><a href="#a1.0.3">1.0.3</a></td>
+<td>2014-07-15</td>
+<td></td></tr>
+<tr class="b">
+<td><a href="#a1.0.2">1.0.2</a></td>
+<td>2014-03-25</td>
+<td>Just Grunt</td></tr>
+<tr class="a">
+<td><a href="#a1.0.1">1.0.1</a></td>
+<td>2014-03-22</td>
+<td>Grunt support</td></tr>
+<tr class="b">
+<td><a href="#a1.0.0">1.0.0</a></td>
+<td>2014-03-20</td>
+<td>Initial release</td></tr></table></div>
 <div class="section">
-<h2>The integrated build<a name="The_integrated_build"></a></h2>
-<p>The problematic part is that <tt>npm</tt> gathers dependencies in directory <tt>node_modules</tt> during every build.</p>
-<p>To prevent this, the <tt>npmpack-maven-plugin</tt> takes complete care about this directory. That is:</p>
-
-<ul>
-  
-<li>if it exists but is obsolete (because <tt>package.json</tt> has changed), deletes it</li>
-  
-<li>if it does not exist, downloads (or locates in local repo) <i>maven artifact</i> which contains it</li>
-  
-<li>if it cannot be downloaded, it normally fails the build <i>(regular build)</i></li>
-  
-<li>in <i>maintenance build</i>, it calls <tt>npm install</tt> and then packages the resulting <tt>node_modules</tt> as a maven artifact. Then the developer&#x2019;s should publish it into Nexus for sharing with the team.</li>
-</ul>
-<p>We assume that npm dependencies (expressed in the <tt>package.json</tt> file) do not change very often. Therefore, as noted above, we differentiate between two build types:</p>
-
-<ul>
-  
-<li><b>regular</b> build, which is the one that your CI system is configured to always perform, and developer uses most of the time. NPM is <i>not</i> allowed to access internet; everything must come through Maven repositories.</li>
-  
-<li><b>maintenance</b> build, during which developer prepares Maven artifacts wrapping the changed npm dependencies. NPM of course uses internet to gather the packages.</li>
-</ul>
+<h3>Release 1.0-SNAPSHOT<a name="Release_1.0-SNAPSHOT"></a></h3><a name="a1.0-SNAPSHOT"></a>
+<p>No changes in this release.</p>
 <div class="section">
-<h3>Regular build<a name="Regular_build"></a></h3>
-<p>This is the everyday build, intended for use in Jenkins and most developer usecases. To enforce it, add <tt>-Dnpmpack.allowNpmInstall=false</tt> to Maven commandline - but it is a default, unless your POMs define otherwise.</p></div>
+<h3>Release 1.0.3 - 2014-07-15<a name="Release_1.0.3_-_2014-07-15"></a></h3><a name="a1.0.3"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Type</th>
+<th>Changes</th>
+<th>By</th></tr>
+<tr class="b">
+<td><img src="images/add.gif" alt="add" title="add" /></td>
+<td>new param &quot;allowNpmInstall&quot; and &quot;npmInstallNotAllowedMsg&quot;</td>
+<td><a href="team-list.html#Petr Kozelka">Petr Kozelka</a></td></tr></table></div>
 <div class="section">
-<h3>Maintenance build<a name="Maintenance_build"></a></h3>
-<p>During this build, we allow NPM to install components, or different versions, from internet. This gives the developer an opportunity to take care with any issues that NPM may have. To use it, add <tt>-Dnpmpack.allowNpmInstall</tt> to your Maven Commandline.</p>
-<p>In this case, the plugin does not fail when <tt>package.json</tt> is changed; instead, it invokes <tt>npm install</tt> and generates new package. The developer should upload this new package into a Nexus (or other Maven Repository Manager) so that CI and other developers can use it.</p>
-<p>Note that the generated artifact comes together with generated pom file, to avoid any mistakes during upload.</p></div></div>
+<h3>Release 1.0.2 - 2014-03-25<a name="Release_1.0.2_-_2014-03-25"></a></h3><a name="a1.0.2"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Type</th>
+<th>Changes</th>
+<th>By</th></tr>
+<tr class="b">
+<td><img src="images/update.gif" alt="update" title="update" /></td>
+<td>both grunt mojos replaced with single &quot;grunt&quot; mojo</td>
+<td><a href="team-list.html#Petr Kozelka">Petr Kozelka</a></td></tr></table></div>
+<div class="section">
+<h3>Release 1.0.1 - 2014-03-22<a name="Release_1.0.1_-_2014-03-22"></a></h3><a name="a1.0.1"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Type</th>
+<th>Changes</th>
+<th>By</th></tr>
+<tr class="b">
+<td><img src="images/add.gif" alt="add" title="add" /></td>
+<td>added goals &quot;grunt-build&quot; and &quot;grunt-test&quot;</td>
+<td><a href="team-list.html#Petr Kozelka">Petr Kozelka</a></td></tr></table></div>
+<div class="section">
+<h3>Release 1.0.0 - 2014-03-20<a name="Release_1.0.0_-_2014-03-20"></a></h3><a name="a1.0.0"></a>
+<table border="0" class="table table-striped">
+<tr class="a">
+<th>Type</th>
+<th>Changes</th>
+<th>By</th></tr>
+<tr class="b">
+<td><img src="images/add.gif" alt="add" title="add" /></td>
+<td>Initial implementation</td>
+<td><a href="team-list.html#Petr Kozelka">Petr Kozelka</a></td></tr></table></div></div>
                   </div>
           </div>
 
