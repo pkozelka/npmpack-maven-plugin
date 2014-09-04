@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<document xmlns="http://maven.apache.org/changes/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd">
+    <properties>
+    </properties>
+    <body>
+        <release version="1.0-SNAPSHOT">
+        </release>
+
+        <release version="1.0.3" date="2014-07-15" description="">
+            <action dev="Petr Kozelka" type="add">new param "allowNpmInstall" and "npmInstallNotAllowedMsg"</action>
+        </release>
+
+        <release version="1.0.2" date="2014-03-25" description="Just Grunt">
+            <action dev="Petr Kozelka" type="update">both grunt mojos replaced with single "grunt" mojo</action>
+        </release>
+
+        <release version="1.0.1" date="2014-03-22" description="Grunt support">
+            <action dev="Petr Kozelka" type="add">added goals "grunt-build" and "grunt-test"</action>
+        </release>
+
+        <release version="1.0.0" date="2014-03-20" description="Initial release">
+            <action dev="Petr Kozelka" type="add">Initial implementation</action>
+        </release>
+    </body>
+</document>

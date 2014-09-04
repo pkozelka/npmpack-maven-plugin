@@ -220,8 +220,24 @@
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.5.4</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.10</version>
+                <configuration>
+                    <xmlPath>${basedir}/changes.xml</xmlPath>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>changes-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
         </plugins>
     </reporting>
+    <inceptionYear>2014</inceptionYear>
     <developers>
         <developer>
             <name>Petr Kozelka</name>
@@ -256,6 +272,35 @@
         <name>Petr Kozelka</name>
         <url>http://kozelka.net</url>
     </organization>
+    <profiles>
+        <profile>
+            <id>sonatype-oss-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>attach-changes-xml</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <attachartifact file="changes.xml" classifier="changes" type="xml" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <scm>
         <connection>scm:git:http://github.com/pkozelka/npmpack-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:pkozelka/npmpack-maven-plugin.git</developerConnection>
