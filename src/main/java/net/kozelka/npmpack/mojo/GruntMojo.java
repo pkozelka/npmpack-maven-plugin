@@ -5,6 +5,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -50,7 +51,9 @@ public class GruntMojo extends AbstractNpmpackMojo {
             final Commandline commandline = new Commandline();
             commandline.setWorkingDirectory(basedir);
             final File localBin = new File(node_modules, ".bin");
-            commandline.setExecutable(new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath());
+            String executable = new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath();
+            executable = StringUtils.quoteAndEscape(executable, '"', new char[]{'"', '(', ')'});
+            commandline.setExecutable(executable);
             commandline.addArguments(gruntCommand.split("\\s+"));
             if (skip) {
                 getLog().info("Grunt execution is skipped: " + CommandLineUtils.toString(commandline.getShellCommandline()));
