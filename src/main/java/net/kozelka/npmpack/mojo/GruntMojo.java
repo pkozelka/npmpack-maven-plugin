@@ -1,16 +1,14 @@
 package net.kozelka.npmpack.mojo;
 
+import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
-
-import java.io.File;
 
 /**
  * Executes grunt in order to perform grunt-based build.
@@ -51,8 +49,9 @@ public class GruntMojo extends AbstractNpmpackMojo {
             final Commandline commandline = new Commandline();
             commandline.setWorkingDirectory(basedir);
             final File localBin = new File(node_modules, ".bin");
-            String executable = new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath();
-            executable = StringUtils.quoteAndEscape(executable, '"', new char[]{'"', '(', ')'});
+            final String executable = new File(localBin, selectAlternative(gruntExecutables)).getAbsolutePath();
+            //TODO: #8 - I am afraid that this escaping might have side-effects
+//            executable = StringUtils.quoteAndEscape(executable, '"', new char[]{'"', '(', ')'});
             commandline.setExecutable(executable);
             commandline.addArguments(gruntCommand.split("\\s+"));
             if (skip) {
