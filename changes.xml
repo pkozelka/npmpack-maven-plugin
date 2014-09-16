@@ -6,6 +6,7 @@
     </properties>
     <body>
         <release version="1.0-SNAPSHOT">
+            <action dev="Petr Kozelka" type="add">new mojo "bower" for generating client-side dependencies</action>
         </release>
 
         <release version="1.0.3" date="2014-07-15" description="">
