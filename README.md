@@ -2,6 +2,9 @@
 
 # NPMPACK MAVEN PLUGIN
 
+[![Build Status](https://travis-ci.org/pkozelka/npmpack-maven-plugin.png?branch=master)](https://travis-ci.org/pkozelka/npmpack-maven-plugin)
+(installing NPM on demand from maven repo is WIP)
+
 A Maven Plugin that simplifies integration of UI build, performed by NodeJs/NPM based tools like Grunt, into Maven build.
 
 See the docs here: [Overview.md](https://github.com/pkozelka/npmpack-maven-plugin/blob/master/src/site/markdown/index.md)
