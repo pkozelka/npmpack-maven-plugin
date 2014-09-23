@@ -1,5 +1,8 @@
 package net.kozelka.npmpack.mojo;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,10 +27,17 @@ public class BowerMojo extends AbstractNpmpackMojo {
     String bowerExecutables;
 
     /**
-     * The execution is skipped it this is true.
+     * The execution is skipped if this is true.
      */
     @Parameter(defaultValue = "false", required = true, property = "bower.skip")
     boolean skip;
+
+    /**
+     * When true, manual (or maintenance) mode is assumed. In this mode, the plugin is allowed to download artifacts from non-Maven repositories, like NPM registry or from Bower.
+     * Otherwise it fails if the needed artifact is not available in maven repository.
+     */
+    @Parameter(defaultValue = "false", required = true, property = "npmpack.manual")
+    boolean manualMode;
 
 
     /**
@@ -56,20 +66,31 @@ public class BowerMojo extends AbstractNpmpackMojo {
             commandline.addArguments(new String[]{"install"});
             if (skip) {
                 getLog().info("Bower execution is skipped: " + CommandLineUtils.toString(commandline.getShellCommandline()));
-            } else {
-                // TODO: add the trick to avoid the need for calling bower in regular builds!
+                return;
+            }
 
-                // TODO: make sure that bower is in node_modules ?
-                final File bowerrc = new File(basedir, ".bowerrc");
-                final boolean temporary = !bowerrc.exists();
+            final File bowerrcFile = new File(basedir, ".bowerrc");
+            final boolean temporary = !bowerrcFile.exists();
+            if (! temporary) {
+                final JsonObject bowerrc = readBowerRc(bowerrcFile);
+                bowerOutputDirectory = new File(bowerrc.get("directory").getAsString());
+                getLog().info(".bowerrc/directory=" + bowerOutputDirectory);
+            }
+            // TODO: check that current content of bowerOutputDirectory matches bower.json (use checksum of anonymized canonicalized clone)
+            // TODO: add the trick to avoid the need for calling bower in regular builds!
+            if (manualMode) {
+                // TODO: make sure that bower is in node_modules ? Like, by using "npm install bower" ?
                 if (temporary) {
-                    FileUtils.fileWrite(bowerrc, "{\n    directory: \""+ jsonEscape(bowerOutputDirectory.getAbsolutePath()) +"\"\n}");
-                    bowerrc.deleteOnExit();
+                    FileUtils.fileWrite(bowerrcFile, "{\n    directory: \""+ jsonEscape(bowerOutputDirectory.getAbsolutePath()) +"\"\n}");
+                    bowerrcFile.deleteOnExit();
                 }
                 executeCommandline("bower", commandline);
                 if (temporary) {
-                    bowerrc.delete();
+                    bowerrcFile.delete();
                 }
+                //TODO: package the files in bowerOutputDirectory and put in local/remote repo
+            } else {
+                throw new MojoExecutionException("Bower artifact not found, cannot create one in regular mode. Add '-DmanualMode' to Maven commandline to prepare one.");
             }
         } catch (InterruptedException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -78,6 +99,13 @@ public class BowerMojo extends AbstractNpmpackMojo {
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    private JsonObject readBowerRc(File bowerrcFile) throws IOException {
+        final String text = FileUtils.fileRead(bowerrcFile);
+        // always call this, to at least validate that it is correct json format
+        final JsonParser parser = new JsonParser();
+        return (JsonObject) parser.parse(text);
     }
 
     private String jsonEscape(String s) {
