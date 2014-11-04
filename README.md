@@ -2,7 +2,7 @@
 
 # NPMPACK MAVEN PLUGIN
 
-[![Build Status](https://travis-ci.org/pkozelka/npmpack-maven-plugin.png?branch=master)](https://travis-ci.org/pkozelka/npmpack-maven-plugin)
+[ ![Codeship Status for pkozelka/npmpack-maven-plugin](https://codeship.io/projects/81d3ef40-468e-0132-ca32-1e4296eb592a/status)](https://codeship.io/projects/45356)
 (installing NPM on demand from maven repo is WIP)
 
 A Maven Plugin that simplifies integration of UI build, performed by NodeJs/NPM based tools like Grunt, into Maven build.
